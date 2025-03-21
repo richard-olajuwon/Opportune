@@ -7,6 +7,7 @@ import FormSelect from "../../components/form/FormSelect";
 const SignUpPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [signupError, setSignUpError] = useState("")
   const [role, setRole] = useState("candidate");
   const [profileData, setProfileData] = useState({
     // Company fields
@@ -22,6 +23,10 @@ const SignUpPage = () => {
     event.preventDefault();
     try {
       const data = await signup(email, password, role, profileData);
+      if(data.success === false){
+        setSignUpError(data.error);
+        setTimeout(() => {setSignUpError("")}, 5000);
+      }
       return data;
     } catch (error) {
       console.error("SignUp failed:", error);
@@ -120,6 +125,7 @@ const SignUpPage = () => {
             </>
           )}
 
+            <p className="bg-red-700 text-white p-0">{signupError}</p>
 
             <button type="submit" className="btn btn-primary">
               {" "}

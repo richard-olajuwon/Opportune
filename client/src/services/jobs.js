@@ -1,10 +1,9 @@
 import axios from "axios";
-
-const baseUrl = "http://localhost:5000/api/jobs";
+import { baseUrl } from "../constants";
 
 const getJobs = async () => {
   try {
-    const response = await axios.get(baseUrl);
+    const response = await axios.get(`${baseUrl}/api/jobs`);
     return response.data;
   } catch (error) {
     console.error("Error fetching jobs:", error);
@@ -13,7 +12,7 @@ const getJobs = async () => {
 
 const getOneJob = async (id) => {
   try {
-    const response = await axios.get(`${baseUrl}/${id}`);
+    const response = await axios.get(`${baseUrl}/api/jobs/${id}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching job:", error);
@@ -25,7 +24,7 @@ const getMyJobs = async (token) => {
     headers: { Authorization: `Bearer ${token}` },
   }
   try {
-    const response = await axios.get(`${baseUrl}/myjobs`, config)
+    const response = await axios.get(`${baseUrl}/api/jobs/myjobs`, config)
     return response.data
   } catch (error) {
     console.error("Error fetching jobs", error)
@@ -37,13 +36,13 @@ const createJob = async (newJob, token) => {
     const config = {
       headers: { Authorization: `Bearer ${token}` }
     };
-    const response = await axios.post(baseUrl, newJob, config);
+    const response = await axios.post(`${baseUrl}/api/jobs`, newJob, config);
 
     return response.data;
   } 
   catch (error) {
     console.log("Error posting data:", error.response.data.error);
-    return{success: false, error: error.reponse.data.error}
+    return {success: false, error: error.response.data.error}
   }
 };
 
@@ -52,10 +51,14 @@ const updateJob = async (id, updatedJob, token) => {
     const config = {
       headers: { Authorization: `Bearer ${token}` }
     };
-    const response = axios.put(`${baseUrl}/${id}`, updatedJob, config);
+
+    const response = await axios.put(`${baseUrl}/api/jobs/${id}`, updatedJob, config);
+
     return response.data;
+
   } catch (error) {
-    console.log("Error updating data:", error);
+    console.error("Error updating data:", error.response.data.error);
+    return {success: false, error: error.response.data.error}
   }
 };
 
@@ -65,7 +68,7 @@ const deleteJob = async (id, token) => {
     const config = {
       headers: { Authorization: `Bearer ${token}` },
     };
-    const response = axios.delete(`${baseUrl}/${id}`, config);
+    const response = await axios.delete(`${baseUrl}/api/jobs/${id}`, config);
     return response.data;
   } catch (error) {
     console.log("Error deleting data:", error);

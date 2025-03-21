@@ -1,10 +1,9 @@
 import axios from "axios";
-
-const baseUrl = "http://localhost:5000/api/users"; // TODO: Change the URL on Vite config file
+import { baseUrl } from '../constants';
 
 export const login = async (email, password) => {
   try {
-    const res = await axios.post(`${baseUrl}/login`, { email, password });
+    const res = await axios.post(`${baseUrl}/api/users/login`, { email, password });
     const user = res.data;
     localStorage.setItem("user", JSON.stringify(user));
     window.location.href = "/";
@@ -16,7 +15,7 @@ export const login = async (email, password) => {
 
 export const signup = async (email, password, role, profileData) => {
   try {
-    const res = await axios.post(`${baseUrl}/signup`, {
+    const res = await axios.post(`${baseUrl}/api/users/signup`, {
       email,
       password,
       role,
@@ -27,7 +26,7 @@ export const signup = async (email, password, role, profileData) => {
     window.location.href = "/";
     return res.data;
   } catch (error) {
-    console.error("Registration failed:", error);
+    return {success: false, error: error.response.data.error}
   }
 };
 

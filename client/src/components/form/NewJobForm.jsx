@@ -17,6 +17,7 @@ const NewJobForm = ({ formData, handleSubmit, handleChange }) => {
         name="title"
         value={formData.title}
         onChange={handleChange}
+        required
       />
 
       <FormInput

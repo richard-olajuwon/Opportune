@@ -2,6 +2,7 @@ const userRouter = require('express').Router()
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const { User, Company, Candidate } = require('../models/user')
+const { sendWelcomeEmail } = require('../lib/utils')
 
 // Login
 userRouter.post('/login', async (req, res) => {
@@ -62,6 +63,20 @@ userRouter.post('/login', async (req, res) => {
 // Signup
 userRouter.post('/signup', async (req, res) => {
   const { email, password, role, profileData } = req.body
+
+    const minLength = 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    
+    if (password.length < minLength) {
+      return res.status(400).json({error: 'Password length is less than 8'});
+    }
+    else if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
+      return res.status(400).json({error: 'Password is too weak. Try including uppercase and lowercase letters, numbers, and symbols.'});
+    }
+
 
   try {
     const existingUser = await User.findOne({ email })
@@ -126,7 +141,9 @@ userRouter.post('/signup', async (req, res) => {
       { expiresIn: '2 days' }
     )
 
-    res.status(201).json({
+    sendWelcomeEmail(user.email);
+
+    return res.status(201).json({
       token,
       id: user.id,
       email: user.email,
@@ -135,14 +152,14 @@ userRouter.post('/signup', async (req, res) => {
     })
   } catch (error) {
     console.log(error)
-    res.status(500).json({ error: error.message })
+    return res.status(500).json({ error: error.message })
   }
 })
 
 // Get all users
 userRouter.get('/', async (req, res) => {
   const users = await User.find({ })
-  res.json(users)
+  return res.json(users)
 })
 
 module.exports = userRouter
