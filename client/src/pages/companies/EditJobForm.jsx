@@ -32,16 +32,26 @@ const EditJobForm = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      await jobService.updateJob(id, formData, user.token);
-      dispatchNotification({
-        type: "SHOW_NOTIFICATION",
-        payload: `Job "${formData.title}" updated successfully`,
-      });
-      navigate(`/jobs/${id}`);
+
+      const jobUpdateResponse = await jobService.updateJob(id, formData, user.token);
+      
+      if(jobUpdateResponse.success !== false){
+        dispatchNotification({
+          type: "SHOW_NOTIFICATION",
+          payload: `"${formData.title}" Job updated successfully`,
+        });
+        navigate(`/jobs/${id}`);
+      }
+      else{
+        dispatchNotification({
+          type: "SHOW_NOTIFICATION",
+          payload: `Error updating job: ${jobUpdateResponse.error}`,
+        });
+      }
     } catch (error) {
       dispatchNotification({
         type: "SHOW_NOTIFICATION",
-        payload: `Error updating job: ${error.message}`,
+        payload: `Error updating job: ${error.response.data.error}`,
       });
     }
   };

@@ -1,4 +1,3 @@
-const config = require('./src/lib/config')
 const express = require('express');
 const cors = require('cors')
 const mongoose = require('mongoose')
@@ -15,7 +14,7 @@ app.use(logger)
 
 // MongoDB config
 mongoose.set('strictQuery', false)
-mongoose.connect(config.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI)
 .then(() => {
   console.log('connected to MongoDB')
 })

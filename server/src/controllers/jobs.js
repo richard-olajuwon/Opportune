@@ -53,6 +53,23 @@ jobsRouter.get('/:id', async (req, res) => {
 jobsRouter.post('/', async (req, res) => {
   const body = req.body  
 
+  if(!body.title || !body.location || !body.employmentType || !body.seniority){
+    return res.status(400).json({error: 'Fill out all Job info before Submitting'})
+  }
+
+  function isValidURL(url) {
+    try {
+        new URL(url);
+        return true;
+    } catch {
+        return false;
+    }
+  }
+
+  if(body.applicationUrl !== '' && !isValidURL(body.applicationUrl)){
+    return res.status(400).json({error: "Application URL must start with http:// or https://"})
+  }
+
   const decodedToken = jwt.verify(getTokenFrom(req), process.env.SECRET)
   if (!decodedToken.id) {
     return res.status(401).json({ error: 'token missing or invalid' })
@@ -81,6 +98,7 @@ jobsRouter.post('/', async (req, res) => {
     datePosted: body.datePosted,
     requirements: body.requirements,
     tasks: body.tasks,
+    applicationUrl: body.applicationUrl
   })
 
   try {
@@ -131,6 +149,23 @@ jobsRouter.put('/:id', async (req, res) => {
   const body = req.body
   const jobId = req.params.id
 
+  if(!body.title || !body.location || !body.employmentType || !body.seniority){
+    return res.status(400).json({error: 'Fill out all Job info before Submitting'})
+  }
+
+  function isValidURL(url) {
+    try {
+        new URL(url);
+        return true;
+    } catch {
+        return false;
+    }
+  }
+
+  if(body.applicationUrl !== '' && !isValidURL(body.applicationUrl)){
+    return res.status(400).json({error: "Application URL must start with http:// or https://"})
+  }
+
   const decodedToken = jwt.verify(getTokenFrom(req), process.env.SECRET)
   if (!decodedToken.id) {
     return res.status(401).json({ error: 'token missing or invalid' })
@@ -163,7 +198,8 @@ jobsRouter.put('/:id', async (req, res) => {
       description: body.description,
       salary: body.salary,
       requirements: body.requirements,
-      tasks: body.tasks
+      tasks: body.tasks,
+      applicationUrl: body.applicationUrl
     }
 
   try {

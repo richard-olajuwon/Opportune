@@ -44,23 +44,22 @@ const NewJobForm = () => {
     try {
       const jobCreationResponse = await jobService.createJob(formData, user.token);
       if(jobCreationResponse.success !== false){
-      dispatchNotification({
-        type: "SHOW_NOTIFICATION",
-        payload: `"${formData.title}" Job created successfully`,
-      });
-      navigate("/");
+        dispatchNotification({
+          type: "SHOW_NOTIFICATION",
+          payload: `"${formData.title}" Job created successfully`,
+        });
+        navigate("/");
       }else{
         dispatchNotification({
           type: "SHOW_NOTIFICATION",
-          payload: `Error Creating Job, Try Again`,
+          payload: `Error Creating Job: ${jobCreationResponse.error}`,
         });
-        console.error("Error creating job:", error);
       }
 
     } catch (error) {
       dispatchNotification({
         type: "SHOW_NOTIFICATION",
-        payload: `Error Creating Job`,
+        payload: `Error Creating Job, Try again`,
       });
       console.error("Error creating job:", error);
     }

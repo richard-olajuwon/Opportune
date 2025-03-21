@@ -26,6 +26,7 @@ const JobDetailsPage = () => {
   if (!job) {
     return <h1>Job not found</h1>;
   }
+  
 
   return (
     <div className="text-start">
@@ -59,16 +60,26 @@ const JobDetailsPage = () => {
         </div>
 
         <p className="mb-6 text-lg">
-          <strong>Salary:</strong> {job.salary} USD/month
+          <strong>Salary:</strong> {job.salary} USD/Year
         </p>
 
         {user && user.role === 'candidate' && (
+          job.applicationUrl === "" ? (
+          // Render a button if job.applicationUrl is empty
           <button  
             onClick={() => navigate(`/jobs/${id}/apply`)}
             className="btn"
           >
-            Apply
+            Easy Apply
           </button>
+          ) : (
+            // Render an 'a' tag with link to the job website if job.applicationUrl is not empty
+            <a 
+            href={`${job.applicationUrl}`}
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="btn">Apply &gt;</a>
+          )
           )           
         }
       </section>

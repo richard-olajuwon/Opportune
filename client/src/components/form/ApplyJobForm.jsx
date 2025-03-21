@@ -70,7 +70,7 @@ const ApplyJobForm = ({ formData, handleChange }) => {
         label = "Resume"
         type = "file"
         onChange = {handleChange}
-        // required
+        required
       />
     </div>
   )

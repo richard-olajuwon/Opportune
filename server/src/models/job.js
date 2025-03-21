@@ -13,6 +13,7 @@ const jobSchema = new mongoose.Schema({
   datePosted: { type: Date },
   requirements: { type: [String] },
   tasks: { type: [String] },
+  applicationUrl: {type: String},
   applicants: { type: [mongoose.Schema.Types.ObjectId], ref: 'Candidate' }
 })
 
