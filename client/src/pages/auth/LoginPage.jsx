@@ -6,14 +6,21 @@ import FormInput from "../../components/form/FormInput";
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
 
   // TODO: Implement Error Handling Messages
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
       const data = await login(email, password);
-      // console.log('Login successful:', data);
+
+      if(data.success === false){
+        setLoginError(data.error);
+        setTimeout(() => {setLoginError("")}, 5000);
+      }
+
       return data;
+      
     } catch (error) {
       console.error("Login failed:", error);
     }
@@ -59,6 +66,8 @@ const LoginPage = () => {
                 </a>
               </div>
             </div>
+
+            <p className="bg-red-700 text-white p-0">{loginError}</p>
 
             <button type="submit" className="btn btn-primary">
               Sign in
