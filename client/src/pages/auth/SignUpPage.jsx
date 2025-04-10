@@ -9,6 +9,7 @@ const SignUpPage = () => {
   const [password, setPassword] = useState("");
   const [signupError, setSignUpError] = useState("")
   const [role, setRole] = useState("candidate");
+  const [isLoading, setIsLoading] = useState(false);
   const [profileData, setProfileData] = useState({
     // Company fields
     name: "",
@@ -22,13 +23,16 @@ const SignUpPage = () => {
   const handleSignUp = async (event) => {
     event.preventDefault();
     try {
+      setIsLoading(true);
       const data = await signup(email, password, role, profileData);
       if(data.success === false){
+        setIsLoading(false)
         setSignUpError(data.error);
         setTimeout(() => {setSignUpError("")}, 5000);
       }
       return data;
     } catch (error) {
+      setIsLoading(false)
       console.error("SignUp failed:", error);
     }
   };
@@ -127,7 +131,7 @@ const SignUpPage = () => {
 
             <p className="bg-red-700 text-white p-0">{signupError}</p>
 
-            <button type="submit" className="btn btn-primary">
+            <button type="submit" className="btn btn-primary" disabled = {isLoading}>
               {" "}
               Register{" "}
             </button>

@@ -9,7 +9,7 @@ export const login = async (email, password) => {
     window.location.href = "/";
     return res.data;
   } catch (error) {
-    console.error("Login failed:", error);
+    //console.error("Login failed:", error);
     return {success: false, error: error.response.data.error}
   }
 };
