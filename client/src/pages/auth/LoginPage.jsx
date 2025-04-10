@@ -7,14 +7,17 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   // TODO: Implement Error Handling Messages
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
+      setIsLoading(true);
       const data = await login(email, password);
 
       if(data.success === false){
+        setIsLoading(false)
         setLoginError(data.error);
         setTimeout(() => {setLoginError("")}, 5000);
       }
@@ -22,7 +25,8 @@ const LoginPage = () => {
       return data;
       
     } catch (error) {
-      console.error("Login failed:", error);
+      setIsLoading(false);
+      //console.error("Login failed: ", error);
     }
   };
 
@@ -69,7 +73,7 @@ const LoginPage = () => {
 
             <p className="bg-red-700 text-white p-0">{loginError}</p>
 
-            <button type="submit" className="btn btn-primary">
+            <button type="submit" className="btn btn-primary" disabled = {isLoading}>
               Sign in
             </button>
           </form>
