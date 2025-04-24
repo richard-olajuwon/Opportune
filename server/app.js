@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors')
+const cloudinary = require("cloudinary");
 const mongoose = require('mongoose')
 const app = express()
 
@@ -21,6 +22,12 @@ mongoose.connect(process.env.MONGO_URI)
 .catch(error => {
   console.log('error connecting to MongoDB:', error.message)
 })
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 // Routes
 app.use('/api/jobs', jobsRouter)

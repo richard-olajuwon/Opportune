@@ -28,7 +28,7 @@ const NewJobForm = ({ formData, handleSubmit, handleChange }) => {
       />
 
       <FormInput
-        label="Application URL"
+        label="Application URL (Optional)"
         name="applicationUrl"
         value={formData.applicationUrl}
         onChange={handleChange}

@@ -1,6 +1,6 @@
 import FormInput from "./FormInput"
 
-const ApplyJobForm = ({ formData, handleChange }) => {
+const ApplyJobForm = ({ formData, handleChange, handleFileChange }) => {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-row gap-2">
@@ -42,7 +42,8 @@ const ApplyJobForm = ({ formData, handleChange }) => {
           label = "Phone"
           type = "tel"
           onChange = {handleChange}
-          // required
+          required
+          maxLength={20}
         />
       </div>
 
@@ -52,24 +53,24 @@ const ApplyJobForm = ({ formData, handleChange }) => {
         label = "Location"
         type = "text"
         onChange = {handleChange}
-        // required
+        required
       />
 
       <FormInput
         value = {formData.portfolio}
         name = "portfolio"
-        label = "Portfolio"
+        label = "Portfolio / LinkedIn"
         type = "url"
         onChange = {handleChange}
-        // required
+        required
       />
 
       <FormInput
-        value = {formData.resume}
+        //value = {formData.resume}
         name = "resume"
         label = "Resume"
         type = "file"
-        onChange = {handleChange}
+        onChange = {handleFileChange}
         required
       />
     </div>

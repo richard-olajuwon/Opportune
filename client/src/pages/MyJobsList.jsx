@@ -35,16 +35,30 @@ const MyJobsList = () => {
       />
 
       {jobs.length === 0 && (
-        <div className='text-center mt-28 '>
-          <h2 className='text-4xl font-bold'>You havent created any job posts yet.</h2>
-          <p className='mt-4 text-lg'>
-            Click the button below to create your first job post.
-          </p>
-          <button 
-            onClick={() => navigate('/new')}
-            className='btn mt-8'>Create a JobPost
-          </button>
-        </div>
+        user.role === 'company' ?
+        (
+          <div className='text-center mt-28 '>
+            <h2 className='text-4xl font-bold'>You haven't created any job posts yet.</h2>
+            <p className='mt-4 text-lg'>
+              Click the button below to create your first job post.
+            </p>
+            <button 
+              onClick={() => navigate('/new')}
+              className='btn mt-8'>Create a JobPost
+            </button>
+          </div>
+        ):(
+          <div className='text-center mt-28 '>
+            <h2 className='text-4xl font-bold'>You haven't applied to any Job yet.</h2>
+            <p className='mt-4 text-lg'>
+              Click the button below to apply for your first job post.
+            </p>
+            <button 
+              onClick={() => navigate('/')}
+              className='btn mt-8'>Apply To Jobs
+            </button>
+          </div>
+        )
       )}
     </>
   );

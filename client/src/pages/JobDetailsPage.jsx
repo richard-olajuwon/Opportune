@@ -43,7 +43,7 @@ const JobDetailsPage = () => {
             <p className="text-sm text-gray-500">{job.datePosted.split("T")[0]}</p>
           </div>
           
-          { user && user.role === 'company' && (
+          { user && user.role === 'company' && user.profile.id === job.company_id && (
             <button onClick={() => navigate(`/jobs/${id}/edit`)} className="btn">Edit</button>
           )}
         </div>
@@ -117,6 +117,14 @@ const JobDetailsPage = () => {
               ))}
             </ul>
           </div>
+        )}
+
+        {(user.profile.id === job.company_id) && (
+          <button  
+          onClick={() => navigate(`/myjobs/${id}/applicants`)}
+          className="btn bg-green-500 text-white px-4 py-2 rounded hover:bg-green-800 mt-2.5"
+          > See Applicants
+          </button>
         )}
       </section>
     </div>

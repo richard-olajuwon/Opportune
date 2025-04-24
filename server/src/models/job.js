@@ -14,7 +14,17 @@ const jobSchema = new mongoose.Schema({
   requirements: { type: [String] },
   tasks: { type: [String] },
   applicationUrl: {type: String},
-  applicants: { type: [mongoose.Schema.Types.ObjectId], ref: 'Candidate' }
+  applicants: [{
+    applicantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Candidate' },
+    firstName: {type: String, required: true},
+    lastName: {type: String, required: true},
+    email: {type: String, required: true},
+    resume: { type: String, required: true },
+    phone: {type: String, default: ''},
+    link: { type: String,default: '' },
+    location: { type: String, default: ''}
+  }],
+  createdAt: { type: Date, default: Date.now }
 })
 
 jobSchema.set('toJSON', {
