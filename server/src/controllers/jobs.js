@@ -1,8 +1,17 @@
 const jobsRouter = require('express').Router()
 const jwt = require('jsonwebtoken')
 const Job = require('../models/job')
-const { User, Company } = require('../models/user')
+const { User, Company, Candidate } = require('../models/user')
 const { getTokenFrom } = require('../lib/utils')
+const cloudinary = require("cloudinary");
+const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
+
+// Setting up multer to save files temporarily in the 'uploads' directory
+const upload = multer({
+  dest: 'uploads/'
+});
 
 jobsRouter.get('/', async (_req, res) => {
   try {
@@ -16,23 +25,35 @@ jobsRouter.get('/', async (_req, res) => {
 
 jobsRouter.get('/myjobs', async (req, res) => {
   const decodedToken = jwt.verify(getTokenFrom(req), process.env.SECRET)
+
   if (!decodedToken.id) {
     return res.status(401).json({ error: 'token missing or invalid' })
   }
 
-  const user = await User.findById(decodedToken.id)
-  if (user.role !== 'company') {
-    return res.status(403).json({ error: 'only companies can view their jobs' })
-  }
+  try{
+    const user = await User.findById(decodedToken.id)
 
-  const company = await Company.findById(user.company_id)
-  if (!company) {
-    return res.status(404).json({ error: 'company not found' })
-  }
+    if(user.role === 'company'){
+      const company = await Company.findById(user.company_id)
+      if (!company) {
+        return res.status(404).json({ error: 'company not found' })
+      }
 
-  try {
-    const jobs = await Job.find({ company_id: company._id })
-    res.json(jobs)
+      const jobs = await Job.find({ company_id: company._id })
+      return res.json(jobs)
+    }
+
+    const candidate = await Candidate.findById(user.candidate_id)
+
+    if (!candidate) {
+      return res.status(404).json({ error: 'candidate not found' })
+    }
+
+    const appliedJobs = candidate.applications
+
+    const jobs = await Job.find({_id: {$in: appliedJobs}})
+    res.json(jobs)    
+
   } catch (error) {
     console.log(error)
     res.status(500).json({ error: 'internal server error' })
@@ -53,8 +74,14 @@ jobsRouter.get('/:id', async (req, res) => {
 jobsRouter.post('/', async (req, res) => {
   const body = req.body  
 
-  if(!body.title || !body.location || !body.employmentType || !body.seniority){
-    return res.status(400).json({error: 'Fill out all Job info before Submitting'})
+  if(!body.title || (body.title).trim() === ''){
+    return res.status(400).json({error: 'Job Title is required'})
+  }
+  else if(!body.employmentType || (body.employmentType).trim() === ''){
+    return res.status(400).json({error: 'Employment type is required'})
+  }
+  else if(!body.seniority || (body.seniority).trim() === ''){
+    return res.status(400).json({error: 'Job Seniority is required'})
   }
 
   function isValidURL(url) {
@@ -82,7 +109,7 @@ jobsRouter.post('/', async (req, res) => {
 
   const company = await Company.findById({ _id: user.company_id })
   if (!company) {
-    return res.status(401).json({ error: 'company not found' })
+    return res.status(404).json({ error: 'company not found' })
   }
 
   const newJob = new Job({
@@ -212,6 +239,80 @@ jobsRouter.put('/:id', async (req, res) => {
   } catch (error) {
     console.log(error)
     res.status(500).json({ error: 'internal server error' })
+  }
+})
+
+jobsRouter.post('/apply/:id', upload.single('resume'), async(req, res) => {
+
+  const body = req.body
+  const jobId = req.params.id
+
+  const decodedToken = jwt.verify(getTokenFrom(req), process.env.SECRET)
+  
+
+  if (!decodedToken.id) {
+    return res.status(401).json({ error: 'Token missing or Invalid' })
+  }
+
+  try {
+
+    const temporaryFilePath = req.file.path;  // Path to the temporary file (Uploaded Resume)  
+
+    const user = await User.findById(decodedToken.id);
+
+    if(user.role !== 'candidate'){
+      return res.status(401).json({error: 'Only Candidates can apply for jobs'});
+    }
+
+    const alreadyApplied = await Candidate.findOne({_id: user.candidate_id, 'applications': jobId})
+
+    if(alreadyApplied){
+      return res.status(401).json({error: 'You already applied for this job'})
+    }
+
+
+    const resumeLink = await cloudinary.uploader.upload(temporaryFilePath, {
+      resource_type: 'raw',  // This is important for non-image files like PDFs
+    });
+    
+
+    const applicantInfo = {
+      applicantId: user._id,
+      firstName: body.firstName,
+      lastName: body.lastName,
+      email: body.email,
+      resume: resumeLink.secure_url,
+      phone: body.phone,
+      link: body.portfolio,
+      location: body.location
+    }
+
+    await Job.findByIdAndUpdate(
+      jobId,
+      { $push: { applicants: applicantInfo } },
+      { new: true }
+    )
+
+    await Candidate.findByIdAndUpdate(
+      user.candidate_id,
+      {$push: { applications: jobId } },
+      {new: true}
+    )
+
+    fs.unlink(temporaryFilePath, (err) => {
+      if (err) {
+        console.error('Error deleting temporary file:', err);
+      } else {
+        console.log('Temporary file deleted.');
+      }
+    });
+
+    res.status(200).end();
+
+  } catch (error) {
+    console.error('Error Applying to Job', error);
+    
+    res.status(500).json({error: 'Internal Server Error'});
   }
 })
 

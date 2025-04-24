@@ -3,7 +3,7 @@
 Live Website can be found on my <a href="https://richardgeek.com">Portfolio</a>
 
 ## **Overview**
-JobBoard is a job listing platform . This application allows users to browse and apply for jobs, while companies can create, edit, and manage their job postings.
+JobBoard is a job listing platform . This application allows users to browse and apply for jobs, while companies can create, edit, manage their job postings and view applicants for their job.
 
 ---
 
@@ -25,6 +25,7 @@ JobBoard is a job listing platform . This application allows users to browse and
 1. **Manage Job Posts**:
    - Create new job postings.
    - Edit or delete existing postings.
+   - View all Candidates that applied for your Job
 2. **Dashboard**:
    - View a list of all jobs posted by the company.
 
@@ -93,6 +94,7 @@ JobBoard/
 
 ### **Company Dashboard**
 - `GET /my-jobs`: List all jobs created by the authenticated company.
+- `GET /my-jobs/:id/applicants`: View all Applicant for a Specific job Posted by the Authenticated company
 
 ---
 

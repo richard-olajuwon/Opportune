@@ -11,6 +11,7 @@ import NewJobForm from "./pages/companies/NewJobForm";
 import EditJobForm from "./pages/companies/EditJobForm";
 import Layout from "./components/Layout";
 import Notification from "./components/Notification";
+import Applicants from "./pages/companies/Applicants";
 
 function App() {
   // eslint-disable-next-line no-unused-vars
@@ -34,12 +35,13 @@ function App() {
               <Route path="/" element={<JobListPage />} />
               <Route path="/jobs/:id" element={<JobDetailsPage />} />
               <Route path="jobs/:id/apply" element={<ApplicationForm />} />
+              <Route path="/myjobs" element={<MyJobsList />} />
               {user.role === "company" && (
                 <>
                   <Route path="*" element={<Navigate to="/myjobs" />} />
-                  <Route path="/myjobs" element={<MyJobsList />} />
                   <Route path="/jobs/:id/edit" element={<EditJobForm />} />
                   <Route path="/new" element={<NewJobForm />} />
+                  <Route path="/myjobs/:id/applicants" element={<Applicants/>} />
                 </>
               )}
             </>

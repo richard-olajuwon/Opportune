@@ -75,4 +75,19 @@ const deleteJob = async (id, token) => {
   }
 };
 
-export default { getJobs, getOneJob, createJob, updateJob, deleteJob, getMyJobs };
+const applyToJob = async (id, applicantInfo, token) => {
+  try {
+    const config = {
+      headers: { 
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data'
+      },
+    };
+    const response = await axios.post(`${baseUrl}/api/jobs/apply/${id}`, applicantInfo, config);
+    return response
+  } catch (error) {
+    return {success: false, error: error.response.data.error}
+  }
+}
+
+export default { getJobs, getOneJob, createJob, updateJob, deleteJob, getMyJobs, applyToJob };
