@@ -92,6 +92,9 @@ JobBoard/
 - `POST /jobs/:id/like`: Like a job post.
 - `POST /jobs/:id/apply`: Apply for a job.
 
+### **Candidate Dashboard**
+- `GET /my-jobs`: List all jobs the authenticated candidate has applied for.
+
 ### **Company Dashboard**
 - `GET /my-jobs`: List all jobs created by the authenticated company.
 - `GET /my-jobs/:id/applicants`: View all Applicant for a Specific job Posted by the Authenticated company

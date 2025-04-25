@@ -36,7 +36,7 @@ const Card = ({ job }) => {
   };
 
   return (
-    <div className="mt-6 flex min-w-[320px] flex-col rounded-md border p-4 dark:border-slate-800">
+    <div className="mt-6 flex min-w-[270px] flex-col rounded-md border p-4 dark:border-slate-800">
       <div className="flex flex-col">
         <div className="flex justify-between">
           <div className="mb-1 ml-2 flex flex-col text-left">
@@ -56,7 +56,7 @@ const Card = ({ job }) => {
       <IconSection job={job} />
 
       <div className="m-2">
-      {job.description}
+      {job.description.length > 100 ? (job.description).slice(0, 100) + '...' : job.description}
       </div>
 
       <div className="mt-auto flex justify-end">

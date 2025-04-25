@@ -5,7 +5,7 @@ import reactLogo from "../assets/react.svg";
 
 const Header = ({ handleTheme, user }) => {
   return (
-    <header className="flex items-center justify-between p-2">
+    <header className="flex items-start justify-between p-2">
       <div className="flex items-center justify-center">
         <img src={reactLogo} className="ml-2" alt="React logo" />
         <Link to="/" className="logo">
@@ -13,11 +13,10 @@ const Header = ({ handleTheme, user }) => {
         </Link>
       </div>
 
-      <div className="flex items-center justify-center">
-        <ToggleThemeIcon handleTheme={handleTheme} />
+      <div className="pr-4 gap-4 flex flex-col items-end justify-center sm:flex-row sm:items-center ">
         <details className="dropdown">
-          <summary className="btn ml-4">
-            {user.email}
+          <summary className="btn ml-4 bg-gray-500 bg-opacity-20">
+            {user.role === 'company' ? user.profile.name : user.profile.firstName}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="ml-1 inline-block h-4 w-4"
@@ -40,6 +39,7 @@ const Header = ({ handleTheme, user }) => {
             </li>
           </ul>
         </details>
+        <ToggleThemeIcon handleTheme={handleTheme} />
       </div>
     </header>
   );
