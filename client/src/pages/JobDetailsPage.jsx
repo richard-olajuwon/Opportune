@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import jobService from "../services/jobs";
@@ -8,6 +8,7 @@ const JobDetailsPage = () => {
   const { user } = useAuth();
   const { id } = useParams();
   const [job, setJob] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchJob = async () => {
@@ -17,11 +18,17 @@ const JobDetailsPage = () => {
       } catch (error) {
         console.error("Failed to fetch job:", error);
         setJob(null);
+      } finally {
+        setLoading(false)
       }
     };
 
     fetchJob();
   }, [id]);
+
+  if(loading){
+    return(<div>Loading...</div>)
+  }
 
   if (!job) {
     return <h1>Job not found</h1>;
@@ -63,7 +70,7 @@ const JobDetailsPage = () => {
           <strong>Salary:</strong> {job.salary} USD/Year
         </p>
 
-        {user && user.role === 'candidate' && (
+        {user ? (user.role === 'candidate' && (
           job.applicationUrl === "" ? (
           // Render a button if job.applicationUrl is empty
           <button  
@@ -80,7 +87,14 @@ const JobDetailsPage = () => {
             rel="noopener noreferrer" 
             className="btn">Apply &gt;</a>
           )
-          )           
+          ) 
+        ):(
+          job.applicationUrl === "" ? (
+            <Link to='/login'><button className="btn">Easy Apply</button></Link>
+            ) : (
+              <Link to='/login'><button className="btn">Apply &gt;</button></Link>
+            )
+        )          
         }
       </section>
 
@@ -119,7 +133,7 @@ const JobDetailsPage = () => {
           </div>
         )}
 
-        {(user.profile.id === job.company_id) && (
+        {(user && user.profile.id === job.company_id) && (
           <button  
           onClick={() => navigate(`/myjobs/${id}/applicants`)}
           className="btn bg-green-500 text-white px-4 py-2 rounded hover:bg-green-800 mt-2.5"

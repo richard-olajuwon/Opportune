@@ -10,7 +10,7 @@ const ApplyJobForm = ({ formData, handleChange, handleFileChange }) => {
           label = "First Name"
           type = "text"
           onChange = {handleChange}
-          disabled={formData.firstName !== undefined}
+          disabled={formData.firstName !== ''}
           required
         />
 
@@ -20,7 +20,7 @@ const ApplyJobForm = ({ formData, handleChange, handleFileChange }) => {
           label = "Last Name"
           type = "text"
           onChange = {handleChange}
-          disabled={formData.lastName !== undefined}
+          disabled={formData.lastName !== ''}
           required
         />
       </div>
@@ -32,7 +32,7 @@ const ApplyJobForm = ({ formData, handleChange, handleFileChange }) => {
           label = "Email"
           type = "email"
           onChange = {handleChange}
-          disabled={formData.email !== undefined}
+          disabled={formData.email !== ''}
           required
         />
 

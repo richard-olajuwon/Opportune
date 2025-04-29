@@ -14,7 +14,7 @@ const JobList = ({ jobs, pageTitle, searchTerm, handleSearch }) => {
     <div className="px-8">
       <div className="mt-8 flex items-center justify-between">
         <h2 className="text-4xl font-bold">{pageTitle}</h2>
-        {user.role === 'company' && <Link to="/new">
+        {user && user.role === 'company' && <Link to="/new">
           <button className="btn">Create a JobPost</button>
         </Link>}
       </div>
