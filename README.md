@@ -52,7 +52,7 @@ JobBoard is a job listing platform . This application allows users to browse and
 
 ## **Project Structure**
 ```plaintext
-JobBoard/
+Opportune/
 │
 ├── client/             # Frontend
 │   ├── public/
@@ -69,7 +69,7 @@ JobBoard/
 │   ├── routes/         # Route definitions
 │   ├── middlewares/    # Authentication and validation middlewares
 │   ├── utils/          # Helper functions (e.g., JWT handling)
-│   └── server.js       # Entry point for the server
+│   └── index.js       # Entry point for the server
 │
 └── package.json
 ```
