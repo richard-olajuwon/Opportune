@@ -19,7 +19,7 @@ const Notification = () => {
   return (
     <div
       role={`alert`}
-      className="alert fixed left-1/2 top-0 m-2 -translate-x-1/2 transform p-10 lg:p-6"
+      className="alert flex justify-center fixed left-1/2 top-0 -translate-x-1/2 transform p-2 bg-gray-800 text-white"
       style={{ zIndex: 1000 }}
     >
       <Info />

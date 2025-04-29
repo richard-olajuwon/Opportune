@@ -3,14 +3,42 @@ const jwt = require('jsonwebtoken')
 const Job = require('../models/job')
 const { User, Company, Candidate } = require('../models/user')
 const { getTokenFrom } = require('../lib/utils')
-const cloudinary = require("cloudinary");
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 
+
+// Initialize the S3 client with AWS SDK v3
+const s3 = new S3Client({
+  region: 'eu-north-1',
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_KEY,
+  },
+});
+
+const allowedFileTypes = [
+  'application/pdf', 
+  'image/jpeg', 
+  'image/png', 
+  'application/msword', 
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+];
+
+// File filter to check MIME type
+const fileFilter = (req, file, cb) => {
+  if (allowedFileTypes.includes(file.mimetype)) {
+    cb(null, true);  // Accept the file
+  } else {
+    cb(new Error('Invalid file type'), false);  // Reject the file
+  }
+};
+
 // Setting up multer to save files temporarily in the 'uploads' directory
 const upload = multer({
-  dest: 'uploads/'
+  dest: 'uploads/',
+  fileFilter: fileFilter
 });
 
 jobsRouter.get('/', async (_req, res) => {
@@ -254,9 +282,49 @@ jobsRouter.post('/apply/:id', upload.single('resume'), async(req, res) => {
     return res.status(401).json({ error: 'Token missing or Invalid' })
   }
 
+  const resume = req.file;  // Path to the temporary file (Uploaded Resume)  
+
+
   try {
 
-    const temporaryFilePath = req.file.path;  // Path to the temporary file (Uploaded Resume)  
+    if (!resume) {
+      return res.status(400).json({error: 'No resume uploaded'});
+    }
+  
+    const resumeContent = fs.readFileSync(resume.path);
+    const resumeName = resume.originalname;
+    const bucketName = 'webst-images';  // Replace with your S3 bucket name
+
+    let contentType = 'application/octet-stream';  // Default content type
+    
+    // Detect content type based on file extension
+    switch (path.extname(resumeName).toLowerCase()) {
+      case '.pdf':
+        contentType = 'application/pdf';
+        break;
+      case '.jpg':
+      case '.jpeg':
+        contentType = 'image/jpeg';
+        break;
+      case '.png':
+        contentType = 'image/png';
+        break;
+      case '.doc':
+        contentType = 'application/msword';
+        break;
+      case '.docx':
+        contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        break;
+      default:
+        return res.status(400).send('Unsupported file type');
+    }
+  
+    const params = {
+      Bucket: bucketName,
+      Key: `resumes/${Date.now()}-${resumeName}`,  // Optional path within the bucket
+      Body: resumeContent,
+      ContentType: contentType,
+    };
 
     const user = await User.findById(decodedToken.id);
 
@@ -270,10 +338,12 @@ jobsRouter.post('/apply/:id', upload.single('resume'), async(req, res) => {
       return res.status(401).json({error: 'You already applied for this job'})
     }
 
+    // Upload the file to S3
+    const command = new PutObjectCommand(params);
+    await s3.send(command);
 
-    const resumeLink = await cloudinary.uploader.upload(temporaryFilePath, {
-      resource_type: 'raw',  // This is important for non-image files like PDFs
-    });
+    // Return the S3 URL of the uploaded file
+    const resumeUrl = `https://${bucketName}.s3.amazonaws.com/${params.Key}`;
     
 
     const applicantInfo = {
@@ -281,7 +351,7 @@ jobsRouter.post('/apply/:id', upload.single('resume'), async(req, res) => {
       firstName: body.firstName,
       lastName: body.lastName,
       email: body.email,
-      resume: resumeLink.secure_url,
+      resume: resumeUrl,
       phone: body.phone,
       link: body.portfolio,
       location: body.location
@@ -299,20 +369,15 @@ jobsRouter.post('/apply/:id', upload.single('resume'), async(req, res) => {
       {new: true}
     )
 
-    fs.unlink(temporaryFilePath, (err) => {
-      if (err) {
-        console.error('Error deleting temporary file:', err);
-      } else {
-        console.log('Temporary file deleted.');
-      }
-    });
-
     res.status(200).end();
 
   } catch (error) {
     console.error('Error Applying to Job', error);
     
     res.status(500).json({error: 'Internal Server Error'});
+  } finally {
+    // Clean up temporary file
+    fs.unlinkSync(resume.path);
   }
 })
 

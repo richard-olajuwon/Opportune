@@ -43,6 +43,7 @@ JobBoard is a job listing platform . This application allows users to browse and
 
 ### **Database**
 - **MongoDB**: NoSQL database for managing users, jobs, and applications.
+- **AWS S3**: Database for storing Applicants Resume for Easy accessibility by Companies.
 
 ### **Authentication**
 - **JWT (JSON Web Tokens)**: For secure user sessions.

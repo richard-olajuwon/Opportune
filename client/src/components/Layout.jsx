@@ -9,9 +9,9 @@ const Layout = ({ children, user, handleTheme }) => {
 
   return (
     <div className="flex flex-col  min-h-screen">
-      {user && <Header handleTheme={handleTheme} user={user} />}
+      <Header handleTheme={handleTheme} user={user} />
       <main className="flex-grow">{children}</main>
-      {user && <Footer />}
+      <Footer />
     </div>
   );
 };
