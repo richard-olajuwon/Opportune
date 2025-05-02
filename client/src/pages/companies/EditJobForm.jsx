@@ -51,7 +51,7 @@ const EditJobForm = () => {
     } catch (error) {
       dispatchNotification({
         type: "SHOW_NOTIFICATION",
-        payload: `Error updating job: ${error.response.data.error}`,
+        payload: `Error updating job: Try Again`,
       });
     }
   };

@@ -100,16 +100,38 @@ jobsRouter.get('/:id', async (req, res) => {
 })  
 
 jobsRouter.post('/', async (req, res) => {
-  const body = req.body  
+  const {
+    title, 
+    location, 
+    applicationUrl, 
+    employmentType, 
+    seniority, 
+    salary, 
+    description, 
+    tasks, 
+    requirements,
+    datePosted
+ } = req.body  
 
-  if(!body.title || (body.title).trim() === ''){
+  let tasksList;
+  let requirementsList;
+
+  if(!title || title.trim() === ''){
     return res.status(400).json({error: 'Job Title is required'})
   }
-  else if(!body.employmentType || (body.employmentType).trim() === ''){
+  else if(!employmentType || employmentType.trim() === ''){
     return res.status(400).json({error: 'Employment type is required'})
   }
-  else if(!body.seniority || (body.seniority).trim() === ''){
+  else if(!seniority || seniority.trim() === ''){
     return res.status(400).json({error: 'Job Seniority is required'})
+  }
+
+  if(tasks && tasks.trim() !== ''){
+    tasksList = tasks.split('\n').filter(Boolean);
+  }
+
+  if(requirements && requirements.trim() !== ''){
+    requirementsList = requirements.split('\n').filter(Boolean);
   }
 
   function isValidURL(url) {
@@ -121,7 +143,7 @@ jobsRouter.post('/', async (req, res) => {
     }
   }
 
-  if(body.applicationUrl !== '' && !isValidURL(body.applicationUrl)){
+  if(applicationUrl !== '' && !isValidURL(applicationUrl)){
     return res.status(400).json({error: "Application URL must start with http:// or https://"})
   }
 
@@ -144,16 +166,16 @@ jobsRouter.post('/', async (req, res) => {
     company_id: company._id, 
     company: company.name,
 
-    title: body.title,
-    location: body.location,
-    employmentType: body.employmentType,
-    seniority: body.seniority,
-    description: body.description,
-    salary: body.salary,
-    datePosted: body.datePosted,
-    requirements: body.requirements,
-    tasks: body.tasks,
-    applicationUrl: body.applicationUrl
+    title: title,
+    location: location,
+    employmentType: employmentType,
+    seniority: seniority,
+    description: description,
+    salary: salary,
+    datePosted: datePosted,
+    requirements: requirementsList,
+    tasks: tasksList,
+    applicationUrl: applicationUrl
   })
 
   try {
@@ -163,6 +185,94 @@ jobsRouter.post('/', async (req, res) => {
     res.json(savedJob)
   } catch (error) {
     console.log(error);
+    res.status(500).json({ error: 'internal server error' })
+  }
+})
+
+jobsRouter.put('/:id', async (req, res) => {
+  const {
+    title, 
+    location, 
+    applicationUrl, 
+    employmentType, 
+    seniority, 
+    salary, 
+    description, 
+    tasks, 
+    requirements
+  } = req.body
+
+  const jobId = req.params.id
+
+  if(!title || (title).trim() === ''){
+    return res.status(400).json({error: 'Job Title is required'})
+  }
+  else if(!employmentType || (employmentType).trim() === ''){
+    return res.status(400).json({error: 'Employment type is required'})
+  }
+  else if(!seniority || (seniority).trim() === ''){
+    return res.status(400).json({error: 'Job Seniority is required'})
+  }
+
+
+  function isValidURL(url) {
+    try {
+        new URL(url);
+        return true;
+    } catch {
+        return false;
+    }
+  }
+
+  if(applicationUrl !== '' && !isValidURL(applicationUrl)){
+    return res.status(400).json({error: "Application URL must start with http:// or https://"})
+  }
+
+  const decodedToken = jwt.verify(getTokenFrom(req), process.env.SECRET)
+  if (!decodedToken.id) {
+    return res.status(401).json({ error: 'token missing or invalid' })
+  }
+
+  const user = await User.findById(decodedToken.id)
+  if (user.role !== 'company') {
+    return res.status(403).json({ error: 'only companies can edit job posts' })
+  }
+
+  const company = await Company.findById({ _id: user.company_id })
+  if (!company) {
+    return res.status(404).json({ error: 'company not found' })
+  }
+
+  const job = await Job.findById(jobId)
+  if (!job) {
+    return res.status(404).json({ error: 'job post not found' })
+  }
+
+  if (job.company_id.toString() !== company._id.toString()) {
+    return res.status(403).json({ error: 'you do not have permission to edit this job post' })
+  }
+
+  const updatedJob = {
+    title: title,
+    location: location,
+    employmentType: employmentType,
+    seniority: seniority,
+    description: description,
+    salary: salary,
+    requirements: requirements,
+    tasks: tasks,
+    applicationUrl: applicationUrl
+  }
+
+  try {
+  const savedJob = await Job.findByIdAndUpdate(
+    jobId, 
+    { $set: updatedJob}, 
+    { new: true }
+  )
+    res.json(savedJob)
+  } catch (error) {
+    console.log(error)
     res.status(500).json({ error: 'internal server error' })
   }
 })
@@ -196,76 +306,6 @@ jobsRouter.delete('/:id', async (req, res) => {
     res.status(204).end()
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: 'internal server error' })
-  }
-})
-
-jobsRouter.put('/:id', async (req, res) => {
-  const body = req.body
-  const jobId = req.params.id
-
-  if(!body.title || !body.location || !body.employmentType || !body.seniority){
-    return res.status(400).json({error: 'Fill out all Job info before Submitting'})
-  }
-
-  function isValidURL(url) {
-    try {
-        new URL(url);
-        return true;
-    } catch {
-        return false;
-    }
-  }
-
-  if(body.applicationUrl !== '' && !isValidURL(body.applicationUrl)){
-    return res.status(400).json({error: "Application URL must start with http:// or https://"})
-  }
-
-  const decodedToken = jwt.verify(getTokenFrom(req), process.env.SECRET)
-  if (!decodedToken.id) {
-    return res.status(401).json({ error: 'token missing or invalid' })
-  }
-
-  const user = await User.findById(decodedToken.id)
-  if (user.role !== 'company') {
-    return res.status(403).json({ error: 'only companies can edit job posts' })
-  }
-
-  const company = await Company.findById({ _id: user.company_id })
-  if (!company) {
-    return res.status(404).json({ error: 'company not found' })
-  }
-
-  const job = await Job.findById(jobId)
-  if (!job) {
-    return res.status(404).json({ error: 'job post not found' })
-  }
-
-  if (job.company_id.toString() !== company._id.toString()) {
-    return res.status(403).json({ error: 'you do not have permission to edit this job post' })
-  }
-
-  const updatedJob = {
-      title: body.title,
-      location: body.location,
-      employmentType: body.employmentType,
-      seniority: body.seniority,
-      description: body.description,
-      salary: body.salary,
-      requirements: body.requirements,
-      tasks: body.tasks,
-      applicationUrl: body.applicationUrl
-    }
-
-  try {
-  const savedJob = await Job.findByIdAndUpdate(
-    jobId, 
-    { $set: updatedJob}, 
-    { new: true }
-  )
-    res.json(savedJob)
-  } catch (error) {
-    console.log(error)
     res.status(500).json({ error: 'internal server error' })
   }
 })
