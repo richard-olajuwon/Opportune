@@ -6,11 +6,12 @@ import JobList from "../components/job/JobList";
 const JobListPage = () => {
   const [{ jobs }, dispatch] = useJobContext();
   const [searchTerm, setSearchTerm] = useState("");
+  const [jobsLoading, setJobsLoading] = useState(true);
 
   useEffect(() => {
     jobService
       .getJobs()
-      .then((data) => dispatch({ type: "SET_JOBS", payload: data }))
+      .then((data) => { dispatch({ type: "SET_JOBS", payload: data }); setJobsLoading(false);  })
       .catch((error) => console.error("Error fetching jobs:", error));
   }, [dispatch]);
 
@@ -21,6 +22,7 @@ const JobListPage = () => {
   return (
     <>
       <JobList
+        jobsLoading={jobsLoading}
         jobs={jobs}
         pageTitle="All Jobs"
         searchTerm={searchTerm}
