@@ -7,13 +7,12 @@ const Header = ({ handleTheme, user }) => {
   return (
     <header className="flex items-start justify-between p-2">
       <div className="flex items-center justify-center">
-        <img src={reactLogo} className="ml-2" alt="React logo" />
         <Link to="/" className="logo">
           <span className="ml-2 text-2xl font-bold">Opportune</span>
         </Link>
       </div>
 
-      <div className="pr-4 gap-4 flex flex-col items-end justify-center sm:flex-row sm:items-center ">
+      <div className="pr-4 gap-4 flex items-center justify-center sm:flex-row sm:items-center ">
         {user ? 
           (<details className="dropdown">
             <summary className="btn ml-4 bg-gray-500 bg-opacity-20">
